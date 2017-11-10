@@ -47,10 +47,10 @@ class Interface:
             self.in_queue.put(pkt, block)
 
 
-# Implements a network layer packet (different from the RDT packet
-# from programming assignment 2).
-# NOTE: This class will need to be extended to for the packet to include
+# Implements a network layer packet
+# Todo: NOTE: This class will need to be extended to for the packet to include
 # the fields necessary for the completion of this assignment.
+# We can have a data packet or a control packet that contains a routing table.
 class NetworkPacket:
     # packet encoding lengths
     dst_addr_S_length = 5
@@ -191,17 +191,17 @@ class Router:
     # forward the packet according to the routing table
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
-        # TODO: add logic to update the routing tables and
-        # possibly send out routing updates
+        # TODO: add logic to update the routing table and possibly send out more routing updates
         print('%s: Received routing update %s from interface %d' % (self, p, i))
 
     # send out route update
     # @param i Interface number on which to send out a routing update
     def send_routes(self, i):
         # a sample route update packet
+        # Todo: update message for routing tables
         p = NetworkPacket(0, 'control', 'Sample routing table packet')
         try:
-            # TODO: add logic to send out a route update
+            # TODO: Add logic to send out a route update
             print('%s: sending routing update "%s" from interface %d' % (self, p, i))
             self.intf_L[i].put(p.to_byte_S(), 'out', True)
         except queue.Full:

@@ -17,13 +17,13 @@ if __name__ == '__main__':
     object_L = []  # keeps track of objects, so we can kill their threads
 
     # create network hosts
-    client = network_1.Host(1)
-    object_L.append(client)
-    server = network_1.Host(2)
-    object_L.append(server)
+    host_1 = network_1.Host(1)
+    object_L.append(host_1)
+    host_2 = network_1.Host(2)
+    object_L.append(host_2)
 
     # create routers and routing tables for connected clients (subnets)
-    router_a_rt_tbl_D = {1: {0: 1}}  # packet to host 1 through interface 0 for cost 1
+    router_a_rt_tbl_D = {1: {0: 1}}  # from router A to host 1 through interface 0 for cost 1
     router_a = network_1.Router(name='A',
                                 intf_cost_L=[1, 1],
                                 rt_tbl_D=router_a_rt_tbl_D,
@@ -40,10 +40,15 @@ if __name__ == '__main__':
     link_layer = link_1.LinkLayer()
     object_L.append(link_layer)
 
-    # add all the links
-    link_layer.add_link(link_1.Link(client, 0, router_a, 0))
-    link_layer.add_link(link_1.Link(router_a, 1, router_b, 0))
-    link_layer.add_link(link_1.Link(router_b, 1, server, 0))
+    # send links
+    link_layer.add_link(link_1.Link(host_1, 0, router_a, 0))
+    link_layer.add_link(link_1.Link(router_a, 0, router_b, 0))
+    link_layer.add_link(link_1.Link(router_b, 0, host_2, 0))
+
+    # return links
+    link_layer.add_link(link_1.Link(host_2, 0, router_b, 1))
+    link_layer.add_link(link_1.Link(router_b, 1, router_a, 1))
+    link_layer.add_link(link_1.Link(router_a, 1, host_1, 0))
 
     # start all the objects
     thread_L = []
@@ -54,11 +59,11 @@ if __name__ == '__main__':
         t.start()
 
     # send out routing information from router A to router B interface 0
-    router_a.send_routes(1)
+    router_a.send_routes(0)
 
     # create some send events
     for i in range(1):
-        client.udt_send(2, 'Sample client data %d' % i)
+        host_1.udt_send(2, 'Sample host_1 data %d' % i)
 
     # give the network_1 sufficient time to transfer all packets before quitting
     sleep(simulation_time)
