@@ -23,13 +23,18 @@ if __name__ == '__main__':
     object_L.append(host_2)
 
     # create routers and routing tables for connected clients (subnets)
-    router_a_rt_tbl_D = {1: {0: 1}}  # from router A to host 1 through interface 0 for cost 1
+    # ROUTER A
+    router_a_rt_tbl_D = {1: {1: 1},  # from routerA to host1 through interface 1 for cost 1
+                         2: {0: 1}}  # from routerA to host2 through interface 0 and cost of 1
     router_a = network_1.Router(name='A',
                                 intf_cost_L=[1, 1],
                                 rt_tbl_D=router_a_rt_tbl_D,
                                 max_queue_size=router_queue_size)
     object_L.append(router_a)
-    router_b_rt_tbl_D = {2: {1: 3}}  # packet to host 2 through interface 1 for cost 3
+
+    # ROUTER B
+    router_b_rt_tbl_D = {2: {0: 3},  # routerB to host 2 through interface 0 for cost 3
+                         1: {1: 1}}  # routerB to host 1 through interface 1 for cost 1
     router_b = network_1.Router(name='B',
                                 intf_cost_L=[1, 3],
                                 rt_tbl_D=router_b_rt_tbl_D,
