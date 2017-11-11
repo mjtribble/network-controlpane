@@ -72,9 +72,9 @@ class NetworkPacket:
     # convert packet to a byte string for transmission over links
     def to_byte_S(self):
         byte_S = str(self.dst_addr).zfill(self.dst_addr_S_length)
-        if self.prot_S == 'data':
+        if self.prot_S == 'data':  # data
             byte_S += '1'
-        elif self.prot_S == 'control':
+        elif self.prot_S == 'control':  # routing table
             byte_S += '2'
         else:
             raise ('%s: unknown prot_S option: %s' % (self, self.prot_S))
@@ -180,11 +180,17 @@ class Router:
     #  @param i Incoming interface number for packet p
     def forward_packet(self, p, i):
         try:
-            # TODO: Here you will need to implement a lookup into the 
-            # forwarding table to find the appropriate outgoing interface
-            # for now we assume the outgoing interface is (i+1)%2
-            self.intf_L[(i + 1) % 2].put(p.to_byte_S(), 'out', True)
-            print('%s: forwarding packet "%s" from interface %d to %d' % (self, p, i, (i + 1) % 2))
+            # TODO: lookup in the forwarding table to find the appropriate outgoing interface
+            table = self.rt_tbl_D  # routing table
+            destination_host = p.dst_addr
+
+            # returns the minimum cost to reach specified host in the routing table
+            forward_interface = min(table[destination_host], key=table[destination_host].get)
+
+            print('FORWARD INTERFACE = ', forward_interface)
+
+            self.intf_L[forward_interface].put(p.to_byte_S(), 'out', True)
+            print('%s: forwarding packet "%s" from interface %d to %d' % (self, p, i, forward_interface))
         except queue.Full:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
             pass
@@ -216,7 +222,7 @@ class Router:
         df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
 
         print('%s: routing table' % self)
-        print('\tCost To')
+        print('Cost from interface to host::')
         print(df)
 
     # thread target for the host to keep forwarding data
