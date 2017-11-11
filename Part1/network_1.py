@@ -180,11 +180,11 @@ class Router:
     #  @param i Incoming interface number for packet p
     def forward_packet(self, p, i):
         try:
-            # TODO: lookup in the forwarding table to find the appropriate outgoing interface
+            # DoneTODO: lookup in the forwarding table to find the appropriate outgoing interface
             table = self.rt_tbl_D  # routing table
             destination_host = p.dst_addr
 
-            # returns the minimum cost to reach specified host in the routing table
+            # set the interface with the minimum cost to reach specified host from the routing table
             forward_interface = min(table[destination_host], key=table[destination_host].get)
 
             print('FORWARD INTERFACE = ', forward_interface)
@@ -199,7 +199,24 @@ class Router:
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
         # TODO: add logic to update the routing table and possibly send out more routing updates
-        print('%s: Received routing update %s from interface %d' % (self, p, i))
+        print('%s: Received routing update %s from interface %d' % (self, p, i)) 1
+
+    # ALGORITHM FROM BOOK
+    # Initialization:
+    #   for all destinations y in N:
+    #       Dx(y) = c(x,y) /* if y is not a neighbor then c(x,y) = ∞ */
+    #   for each neighbor w
+    #       Dw(y) = ? for all destinations y in N
+    #   for each neighbor w
+    #       send distance vector Dx = [Dx(y): y in N] to w
+    # loop:
+    #   wait (until I see a link cost change to some neighbor w or until I receive a distance vector from some neighbor w)
+    #   for each y in N:
+    #       Dx(y) = minv{c(x,v) + Dv(y)}
+    #   if Dx(y) changed for any destination y
+    #       send distance vector Dx = [Dx(y): y in N] to all neighbors
+    # forever
+
 
     # send out route update
     # @param i Interface number on which to send out a routing update
@@ -217,7 +234,7 @@ class Router:
 
     # Print routing table
     def print_routes(self):
-        # TODO: print the routes as a two dimensional table for easy inspection
+        # DoneTODO: print the routes as a two dimensional table for easy inspection
 
         df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
 
