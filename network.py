@@ -5,6 +5,7 @@ Created on Oct 12, 2016
 '''
 import queue
 import threading
+import pandas as pd
 
 
 ## wrapper class for a queue of packets
@@ -215,8 +216,11 @@ class Router:
         print('%s: routing table' % self)
         #TODO: print the routes as a two dimensional table for easy inspection
         # Currently the function just prints the route table as a dictionary
-        print(self.rt_tbl_D)
-        
+        df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
+
+        print('%s: routing table' % self)
+        print('Cost To')
+        print(df)
                 
     ## thread target for the host to keep forwarding data
     def run(self):
