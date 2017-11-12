@@ -97,6 +97,30 @@ class NetworkPacket:
         return self(dst_addr, prot_S, data_S)
 
 
+# Skeleton of the Message class that will send a router table update
+# Todo: figure out message format, and length
+# Todo: write the to_byte_S and from_byte_s methods
+class Message:
+
+    message_S_length = 10
+
+    # constructor
+    def __init__(self, message):
+        self.message = message
+
+    # convert a message to a byte string for sending message to add to the packet?
+    def to_byte_S(self):
+        byte_S = str(self.message).zfill(self.message_S_length)
+        return byte_S
+
+    # extract a packet object from a byte string
+    # @param byte_S: byte string representation of the packet
+    @classmethod
+    def from_byte_S(self, byte_S):
+        message = byte_S[0: Message.message_S_length]
+        return self(message)
+
+
 # Implements a network host for receiving and transmitting data
 class Host:
     # @param addr: address of this node represented as an integer
