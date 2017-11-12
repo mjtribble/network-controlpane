@@ -23,7 +23,7 @@ if __name__ == '__main__':
     object_L.append(server)
     
     #create routers and routing tables for connected clients (subnets)
-    router_a_rt_tbl_D = {2: {0: 1}} # packet to host 1 through interface 0 for cost 1
+    router_a_rt_tbl_D = {1: {0: 1}} # packet to host 1 through interface 0 for cost 1
     router_a = network_1.Router(name='A',
                               intf_cost_L=[1,1], 
                               rt_tbl_D = router_a_rt_tbl_D, 

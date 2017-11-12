@@ -186,9 +186,10 @@ class Router:
     # process data and control packets
     def process_queues(self):
         for i in range(len(self.intf_L)):
-            pkt_S = None
+
             # get packet from interface i
             pkt_S = self.intf_L[i].get('in')
+
             # if packet exists make a forwarding decision
             if pkt_S is not None:
                 p = NetworkPacket.from_byte_S(pkt_S)  # parse a packet out
@@ -225,6 +226,7 @@ class Router:
         # TODO: add logic to update the routing table and possibly send out more routing updates
         print('%s: Received routing update %s from interface %d' % (self, p, i))
 
+        # bellman ford example code from github, USE as a template for our own methods do copy lol
         # # Step 1: For each node prepare the destination and predecessor
         # def initialize(graph, source):
         #     d = {}  # Stands for destination
