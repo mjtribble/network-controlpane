@@ -58,6 +58,8 @@ class NetworkPacket:
     dst_addr_S_length = 2
     prot_S_length = 1
 
+    header_length = source_addr_S_length + dst_addr_S_length + prot_S_length
+
     # @param source_addr: address of the source node, could be a host or a router.
     # @param dst_addr: address of the destination host
     # @param data_S: packet payload
@@ -91,20 +93,17 @@ class NetworkPacket:
     def from_byte_S(self, byte_S):
         source_addr = byte_S[0: NetworkPacket.source_addr_S_length]
         dst_addr = int(byte_S[NetworkPacket.source_addr_S_length:NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length])
-        prot_S = byte_S[NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length: NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length + NetworkPacket.prot_S_length]
+        prot_S = byte_S[3:4]
         if prot_S == '1':
             prot_S = 'data'
-            data_S = byte_S[
-                     NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length + NetworkPacket.prot_S_length:]
 
         elif prot_S == '2':
             prot_S = 'control'
-            data_S = byte_S[
-                     NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length + NetworkPacket.prot_S_length:]
-
 
         else:
             raise ('%s: unknown prot_S field: %s' % (self, prot_S))
+
+        data_S = byte_S[NetworkPacket.header_length:]
         return self(source_addr, dst_addr, prot_S, data_S)
 
 
@@ -115,7 +114,7 @@ class NetworkPacket:
 # reconvert it from string to a readable table again.
 class UpdateMessage:
 
-    message_S_length = 10
+    message_S_length = 8
 
     # constructor
     def __init__(self, dictionary_table):
@@ -249,7 +248,7 @@ class Router:
     def update_routes(self, p, i):
         # TODO: add logic to update the routing table and possibly send out more routing updates
         print('%s: Received routing update %s from interface %d' % (self, p, i))
-        p = UpdateMessage.from_byte_S(p.data_S)
+        neighbor_table = UpdateMessage.from_byte_S(p.data_S)
 
 
 
@@ -315,10 +314,10 @@ class Router:
     def print_routes(self):
         # DoneTODO: print the routes as a two dimensional table for easy inspection
 
-        df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns')
+        df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
 
-        print('%s: routing table' % self)
-        print('Cost from interface to host::')
+        print('%s: routing table:' % self)
+        print('Cost from Interface to Node:')
         print(df)
 
     # thread target for the host to keep forwarding data
