@@ -54,13 +54,16 @@ class Interface:
 # We can have a data packet or a control packet that contains a routing table.
 class NetworkPacket:
     # packet encoding lengths
-    dst_addr_S_length = 5
+    source_addr_S_length = 1
+    dst_addr_S_length = 2
     prot_S_length = 1
 
+    # @param source_addr: address of the source node, could be a host or a router.
     # @param dst_addr: address of the destination host
     # @param data_S: packet payload
     # @param prot_S: upper layer protocol for the packet (data, or control)
-    def __init__(self, dst_addr, prot_S, data_S):
+    def __init__(self, source_addr, dst_addr, prot_S, data_S):
+        self.source_addr = source_addr
         self.dst_addr = dst_addr
         self.data_S = data_S
         self.prot_S = prot_S
@@ -71,7 +74,8 @@ class NetworkPacket:
 
     # convert packet to a byte string for transmission over links
     def to_byte_S(self):
-        byte_S = str(self.dst_addr).zfill(self.dst_addr_S_length)
+        byte_S = str(self.source_addr)
+        byte_S += str(self.dst_addr).zfill(self.dst_addr_S_length)
         if self.prot_S == 'data':  # data
             byte_S += '1'
         elif self.prot_S == 'control':  # routing table
@@ -85,39 +89,56 @@ class NetworkPacket:
     # @param byte_S: byte string representation of the packet
     @classmethod
     def from_byte_S(self, byte_S):
-        dst_addr = int(byte_S[0: NetworkPacket.dst_addr_S_length])
-        prot_S = byte_S[NetworkPacket.dst_addr_S_length: NetworkPacket.dst_addr_S_length + NetworkPacket.prot_S_length]
+        source_addr = byte_S[0: NetworkPacket.source_addr_S_length]
+        dst_addr = int(byte_S[NetworkPacket.source_addr_S_length:NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length])
+        prot_S = byte_S[NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length: NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length + NetworkPacket.prot_S_length]
         if prot_S == '1':
             prot_S = 'data'
+            data_S = byte_S[
+                     NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length + NetworkPacket.prot_S_length:]
+
         elif prot_S == '2':
             prot_S = 'control'
+            data_S = byte_S[
+                     NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length + NetworkPacket.prot_S_length:]
+
+
         else:
             raise ('%s: unknown prot_S field: %s' % (self, prot_S))
-        data_S = byte_S[NetworkPacket.dst_addr_S_length + NetworkPacket.prot_S_length:]
-        return self(dst_addr, prot_S, data_S)
+        return self(source_addr, dst_addr, prot_S, data_S)
 
 
 # Skeleton of the Message class that will send a router table update
 # Todo: figure out message format, and length
 # Todo: write the to_byte_S and from_byte_s methods
-class Message:
+# This will take in a routing table, convert it into a string format to send
+# reconvert it from string to a readable table again.
+class UpdateMessage:
 
     message_S_length = 10
 
     # constructor
-    def __init__(self, message):
-        self.message = message
+    def __init__(self, dictionary_table):
+        self.message = dictionary_table
 
     # convert a message to a byte string for sending message to add to the packet?
     def to_byte_S(self):
-        byte_S = str(self.message).zfill(self.message_S_length)
+        byte_S = ''
+        table = self.message
+        for destination in table:
+            byte_S += str(destination)
+            for interface in table[destination]:
+                byte_S += str(interface)
+                cost = table[destination][interface]
+                byte_S += str(cost)
+        byte_S = byte_S.zfill(self.message_S_length)
         return byte_S
 
     # extract a packet object from a byte string
     # @param byte_S: byte string representation of the packet
     @classmethod
     def from_byte_S(self, byte_S):
-        message = byte_S[0: Message.message_S_length]
+        message = byte_S[0: self.message_S_length]
         return self(message)
 
 
@@ -137,7 +158,7 @@ class Host:
     # @param dst_addr: destination address for the packet
     # @param data_S: data being transmitted to the network layer
     def udt_send(self, dst_addr, data_S):
-        p = NetworkPacket(dst_addr, 'data', data_S)
+        p = NetworkPacket(self.addr, dst_addr, 'data', data_S)
         print('%s: sending packet "%s"' % (self, p))
         self.intf_L[0].put(p.to_byte_S(), 'out')  # send packets always enqueued successfully
 
@@ -220,14 +241,20 @@ class Router:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
             pass
 
-    # forward the packet according to the routing table
+
+    # This is called if a router has received a control packet from a neighboring router signaling a need to update it's own router.
+    # It will also need to create a new update and sent it to its neighboring routers using sendRoutes()
+    # Implement DV algorithm here.
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
         # TODO: add logic to update the routing table and possibly send out more routing updates
         print('%s: Received routing update %s from interface %d' % (self, p, i))
+        p = UpdateMessage.from_byte_S(p.data_S)
 
-        # bellman ford example code from github, USE as a template for our own methods do copy lol
-        # # Step 1: For each node prepare the destination and predecessor
+
+
+        # # bellman ford example code from github, USE as a template for our own methods do copy lol
+        # # # Step 1: For each node prepare the destination and predecessor
         # def initialize(graph, source):
         #     d = {}  # Stands for destination
         #     p = {}  # Stands for predecessor
@@ -273,7 +300,9 @@ class Router:
     def send_routes(self, i):
         # a sample route update packet
         # Todo: update message for routing tables
-        p = NetworkPacket(0, 'control', 'Sample routing table packet')
+        packet_message = UpdateMessage(self.rt_tbl_D)
+        message_S = packet_message.to_byte_S()
+        p = NetworkPacket(self.name, 0, 'control', message_S)
         try:
             # TODO: Add logic to send out a route update
             print('%s: sending routing update "%s" from interface %d' % (self, p, i))
