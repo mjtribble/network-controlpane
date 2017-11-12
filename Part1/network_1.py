@@ -199,7 +199,31 @@ class Router:
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
         # TODO: add logic to update the routing table and possibly send out more routing updates
-        print('%s: Received routing update %s from interface %d' % (self, p, i)) 1
+        print('%s: Received routing update %s from interface %d' % (self, p, i))
+
+        # # Step 1: For each node prepare the destination and predecessor
+        # def initialize(graph, source):
+        #     d = {}  # Stands for destination
+        #     p = {}  # Stands for predecessor
+        #     for node in graph:
+        #         d[node] = float('Inf')  # We start admiting that the rest of nodes are very very far
+        #         p[node] = None
+        #     d[source] = 0  # For the source we know how to reach
+        #     return d, p
+        #
+        # def relax(node, neighbour, graph, d, p):
+        #     # If the distance between the node and the neighbour is lower than the one I have now
+        #     if d[neighbour] > d[node] + graph[node][neighbour]:
+        #         # Record this lower distance
+        #         d[neighbour] = d[node] + graph[node][neighbour]
+        #         p[neighbour] = node
+        #
+        # def bellman_ford(graph, source):
+        #     d, p = initialize(graph, source)
+        #     for i in range(len(graph) - 1):  # Run this until is converges
+        #         for u in graph:
+        #             for v in graph[u]:  # For each neighbour of u
+        #                 relax(u, v, graph, d, p)  # Lets relax it
 
     # ALGORITHM FROM BOOK
     # Initialization:
@@ -210,13 +234,13 @@ class Router:
     #   for each neighbor w
     #       send distance vector Dx = [Dx(y): y in N] to w
     # loop:
-    #   wait (until I see a link cost change to some neighbor w or until I receive a distance vector from some neighbor w)
+    #   wait (until I see a link cost change to some neighbor w
+    #       or until I receive a distance vector from some neighbor w)
     #   for each y in N:
     #       Dx(y) = minv{c(x,v) + Dv(y)}
     #   if Dx(y) changed for any destination y
     #       send distance vector Dx = [Dx(y): y in N] to all neighbors
     # forever
-
 
     # send out route update
     # @param i Interface number on which to send out a routing update
@@ -236,7 +260,7 @@ class Router:
     def print_routes(self):
         # DoneTODO: print the routes as a two dimensional table for easy inspection
 
-        df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
+        df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns')
 
         print('%s: routing table' % self)
         print('Cost from interface to host::')

@@ -12,6 +12,7 @@ import sys
 # configuration parameters
 router_queue_size = 0  # 0 means unlimited
 simulation_time = 1  # give the network_1 sufficient time to transfer all packets before quitting
+max = sys.maxsize
 
 if __name__ == '__main__':
     object_L = []  # keeps track of objects, so we can kill their threads
@@ -24,8 +25,8 @@ if __name__ == '__main__':
 
     # create routers and routing tables for connected clients (subnets)
     # ROUTER A
-    router_a_rt_tbl_D = {1: {1: 1},  # from routerA to host1 through interface 1 for cost 1
-                         2: {0: 1}}  # from routerA to host2 through interface 0 and cost of 1
+    router_a_rt_tbl_D = {1: {0: max, 1: 1},  # from routerA to host1 through interface 1 for cost 1
+                         2: {0: 1, 1: max}}  # from routerA to host2 through interface 0 and cost of 1
     router_a = network_1.Router(name='A',
                                 intf_cost_L=[1, 1],
                                 rt_tbl_D=router_a_rt_tbl_D,
@@ -33,8 +34,8 @@ if __name__ == '__main__':
     object_L.append(router_a)
 
     # ROUTER B
-    router_b_rt_tbl_D = {2: {0: 3},  # routerB to host 2 through interface 0 for cost 3
-                         1: {1: 1}}  # routerB to host 1 through interface 1 for cost 1
+    router_b_rt_tbl_D = {2: {0: 3, 1: max},  # routerB to host 2 through interface 0 for cost 3
+                         1: {0: max, 1: 1}}  # routerB to host 1 through interface 1 for cost 1
     router_b = network_1.Router(name='B',
                                 intf_cost_L=[1, 3],
                                 rt_tbl_D=router_b_rt_tbl_D,
