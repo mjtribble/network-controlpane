@@ -253,8 +253,9 @@ class Router:
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
         # TODO: add logic to update the routing table and possibly send out more routing updates
-        print('%s: Received routing update %s from interface %d' % (self, p, i))
         neighbor_table = UpdateMessage.from_byte_S(p.data_S)
+        neighboring_router = p.source_addr
+        print('%s: Received routing update %s through interface %d, from router %s' % (self, p, i, neighboring_router))
 
 
 
