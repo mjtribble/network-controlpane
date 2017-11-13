@@ -113,7 +113,7 @@ class NetworkPacket:
 # reconvert it from string to a readable table again.
 class UpdateMessage:
 
-    message_S_length = 20
+    message_S_length = 3
 
     # constructor
     def __init__(self, dictionary_table):
@@ -136,11 +136,7 @@ class UpdateMessage:
     # @param byte_S: byte string representation of the packet
     @classmethod
     def from_byte_S(self, byte_S):
-        table = {byte_S[0]: {byte_S[1]: byte_S[2], byte_S[3]: byte_S[4]},
-                 byte_S[5]: {byte_S[6]: byte_S[7], byte_S[8]: byte_S[9]},
-                 byte_S[10]: {byte_S[11]: byte_S[12], byte_S[13]: byte_S[14]},
-                 byte_S[15]: {byte_S[16]: byte_S[17], byte_S[18]: byte_S[19]},
-                 }
+        table = {byte_S[0]: {byte_S[1]: byte_S[2]}}
         return table
 
 
