@@ -6,6 +6,7 @@ Created on Oct 12, 2016
 import queue
 import threading
 import pandas as pd
+import sys
 
 
 # wrapper class for a queue of packets
@@ -136,7 +137,13 @@ class UpdateMessage:
     # @param byte_S: byte string representation of the packet
     @classmethod
     def from_byte_S(self, byte_S):
-        table = {byte_S[0]: {byte_S[1]: byte_S[2]}}
+        destination = int(byte_S[0])
+        if byte_S[1] == '~':
+            interface = float('Inf')
+        else:
+            interface = int(byte_S[1])
+        cost = int(byte_S[2])
+        table = {destination: {interface: cost}}
         return table
 
 
