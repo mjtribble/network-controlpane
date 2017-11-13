@@ -23,7 +23,7 @@ if __name__ == '__main__':
     object_L.append(server)
     
     #create routers and routing tables for connected clients (subnets)
-    router_a_rt_tbl_D = {1: {1: 1}}  # packet to host 1 through interface 0 for cost 1
+    router_a_rt_tbl_D = {2: {1: 1}}  # packet to host 1 through interface 0 for cost 1
 
     # This table has the correct topology based on the linkLayer
     # router_a_rt_tbl_D = {
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
                         # } # packet to host 1 through interface 0 for cost 1
     router_a = network_1.Router(name='A',
-                              intf_cost_L=[1, 1],
+                              num_intf = 2,
                               rt_tbl_D = router_a_rt_tbl_D, 
                               max_queue_size=router_queue_size)
     object_L.append(router_a)
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     #                         2: {0: '~', 1: 3}
     #                     }
     router_b = network_1.Router(name='B',
-                              intf_cost_L=[1,3], 
+                              num_intf = 2,
                               rt_tbl_D = router_b_rt_tbl_D, 
                               max_queue_size=router_queue_size)
     object_L.append(router_b)

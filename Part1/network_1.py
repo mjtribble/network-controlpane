@@ -196,7 +196,7 @@ class Router:
         # note the number of interfaces is set up by out_intf_cost_L
         self.intf_L = []
         for i in range(num_intf):
-            self.intf_L.append(Interface(Interface(max_queue_size)))
+            self.intf_L.append(Interface(max_queue_size))
         # set up the routing table for connected hosts
         self.rt_tbl_D = rt_tbl_D
 
