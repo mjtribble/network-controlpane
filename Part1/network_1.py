@@ -12,10 +12,9 @@ import pandas as pd
 class Interface:
     # @param maxsize - the maximum size of the queue storing packets
     #  @param cost - of the interface used in routing
-    def __init__(self, cost=0, maxsize=0):
+    def __init__(self, maxsize=0):
         self.in_queue = queue.Queue(maxsize);
         self.out_queue = queue.Queue(maxsize);
-        self.cost = cost
 
     # get packet from the queue interface
     # @param in_or_out - use 'in' or 'out' interface
@@ -185,19 +184,19 @@ class Host:
 
 # Implements a multi-interface router described in class
 class Router:
-    # @param name: friendly router name for debugging
-    # @param intf_cost_L: outgoing cost of interfaces (and interface number) 
-    # @param rt_tbl_D: routing table dictionary (starting reachablility), eg. {1: {1: 1}}
+    # ##@param name: friendly router name for debugging
+    #  @param num_intf: number of bidirectional interfaces
+    #  @param rt_tbl_D: routing table dictionary (starting reachablility), eg. {1: {1: 1}}
     #  packet to host 1 through interface 1 for cost 1
-    # @param max_queue_size: max queue length (passed to Interface)
-    def __init__(self, name, intf_cost_L, rt_tbl_D, max_queue_size):
+    #  @param max_queue_size: max queue length (passed to Interface)
+    def __init__(self, name, num_intf, rt_tbl_D, max_queue_size):
         self.stop = False  # for thread termination
         self.name = name
         # create a list of interfaces
         # note the number of interfaces is set up by out_intf_cost_L
         self.intf_L = []
-        for cost in intf_cost_L:
-            self.intf_L.append(Interface(cost, max_queue_size))
+        for i in range(num_intf):
+            self.intf_L.append(Interface(Interface(max_queue_size)))
         # set up the routing table for connected hosts
         self.rt_tbl_D = rt_tbl_D
 
@@ -298,11 +297,12 @@ class Router:
     #       send distance vector Dx = [Dx(y): y in N] to all neighbors
     # forever
 
-    # send out route update
-    # @param i Interface number on which to send out a routing update
+    # This sends the current router's routing table --> self, to an interface i
+    # Todo: IF THERE'S TIME Check to make sure routing table is accurate based on links from the LinkLayer, and costs from the router.intf_cost_ list
+    # right now the correct links are hard coded into the routing tables
+    #  @param i Interface number on which to send out a routing update
     def send_routes(self, i):
-        # a sample route update packet
-        # Todo: update message for routing tables
+
         packet_message = UpdateMessage(self.rt_tbl_D)
         message_S = packet_message.to_byte_S()
         p = NetworkPacket(self.name, 0, 'control', message_S)
