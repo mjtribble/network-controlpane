@@ -131,6 +131,7 @@ class UpdateMessage:
                 cost = table[destination][interface]
                 byte_S += str(cost)
         byte_S = byte_S.zfill(self.message_S_length)
+        print('kkkkkkkk' + byte_S)
         return byte_S
 
     # extract a packet object from a byte string
@@ -139,7 +140,7 @@ class UpdateMessage:
     def from_byte_S(self, byte_S):
         destination = int(byte_S[0])
         if byte_S[1] == '~':
-            interface = float('Inf')
+            interface = float('inf')
         else:
             interface = int(byte_S[1])
         cost = int(byte_S[2])
@@ -202,7 +203,7 @@ class Router:
             self.intf_L.append(Interface(max_queue_size))
         # set up the routing table for connected hosts
         self.rt_tbl_D = rt_tbl_D
-
+        
         # called when printing the object
 
     def __str__(self):
@@ -323,6 +324,7 @@ class Router:
         # DoneTODO: print the routes as a two dimensional table for easy inspection
 
         df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
+        print(self.rt_tbl_D)
 
         print('%s: routing table:' % self)
         print('Cost from Interface to Node:')
