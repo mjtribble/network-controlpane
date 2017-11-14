@@ -232,17 +232,11 @@ class Router:
     #  @param i Incoming interface number for packet p
     def forward_packet(self, p, i):
         try:
-            # DoneTODO: lookup in the forwarding table to find the appropriate outgoing interface
-            table = self.rt_tbl_D  # routing table
-            destination_host = p.dst_addr
-
-            # set the interface with the minimum cost to reach specified host from the routing table
-            forward_interface = min(table[destination_host], key=table[destination_host].get)
-
-            print('FORWARD INTERFACE = ', forward_interface)
-
-            self.intf_L[forward_interface].put(p.to_byte_S(), 'out', True)
-            print('%s: forwarding packet "%s" from interface %d to %d' % (self, p, i, forward_interface))
+            # TODO: Here you will need to implement a lookup into the 
+            # forwarding table to find the appropriate outgoing interface
+            # for now we assume the outgoing interface is (i+1)%2
+            self.intf_L[(i+1)%2].put(p.to_byte_S(), 'out', True)
+            print('%s: forwarding packet "%s" from interface %d to %d' % (self, p, i, (i+1)%2))
         except queue.Full:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
             pass
@@ -323,12 +317,24 @@ class Router:
     def print_routes(self):
         # DoneTODO: print the routes as a two dimensional table for easy inspection
 
-        df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
-        print(self.rt_tbl_D)
+        # df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
+        
+        w, x, y, z = '~','~','~','~'
+        df = self.rt_tbl_D
+        temp = df.get(1)
+        temp2 = df.get(2)
 
-        print('%s: routing table:' % self)
-        print('Cost from Interface to Node:')
-        print(df)
+        if 1 in df:         
+            if temp.get(1) == 1:
+                w = temp.get(1)
+        if 2 in df:
+            z = temp2.get(1)
+            
+        print('\n'+'%s: routing table:' % self)
+        print ('Cost to: 1 2')
+        print ('        -----')
+        print ('From: 0| %s %s' % (w,x))
+        print ('      1| %s %s' % (y,z))
 
     # thread target for the host to keep forwarding data
     def run(self):

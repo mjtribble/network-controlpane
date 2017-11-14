@@ -23,7 +23,7 @@ if __name__ == '__main__':
     object_L.append(server)
     
     #create routers and routing tables for connected clients (subnets)
-    router_a_rt_tbl_D = {2: {1: 1}}  # packet to host 1 through interface 0 for cost 1
+    router_a_rt_tbl_D = {1: {1: 1}}  # packet to host 1 through interface 1 for cost 1
 
     # This table has the correct topology based on the linkLayer
     # router_a_rt_tbl_D = {
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         t.start()
     
     #send out routing information from router A to router B interface 0
-    router_a.send_routes(1)
+    # router_a.send_routes(1)
     
     #create some send events    
     for i in range(1):
