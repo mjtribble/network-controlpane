@@ -256,33 +256,68 @@ class Router:
 
         #the 1 and 2 belonging to temp represents the columns of the routing table
         # the 0 and 1 in payload represent the interfaces, therefore based on the interfaces and columns we know which element to update with the payload
-        if 1 in temp: #temp is the current routing table
-            payload = temp.get(2)
-            if 0 in payload:
-                w = payload.get(0)
-            if 1 in payload:
-                y = payload.get(1)
+        if self.name =='B':
+            if 1 in temp: #temp is the current routing table
+                payload = temp.get(2)
+                if 0 in payload:
+                    w = payload.get(0)
+                if 1 in payload:
+                    y = payload.get(1)
 
-        if 2 in temp:
-            payload = temp.get(2)
-            if 0 in payload:
-                x = payload.get(0)
-            if 1 in payload:
-                z = payload.get(1)
+            if 2 in temp:
+                payload = temp.get(2)
+                if 0 in payload:
+                    x = payload.get(0)
+                if 1 in payload:
+                    z = payload.get(1)
 
-        if 1 in neighbor_table: #this is the table that was passed that we need to update with
-            payload = neighbor_table.get(1)
-            if 0 in payload:
-                w1 = payload.get(0)
-            if 1 in payload:
-                y1 = payload.get(1)
+            if 1 in neighbor_table: #this is the table that was passed that we need to update with
+                payload = neighbor_table.get(1)
+                if 0 in payload:
+                    w1 = payload.get(0)
+                if 1 in payload:
+                    y1 = payload.get(1)
 
-        if 2 in neighbor_table:
-            payload = neighbor_table.get(1)
-            if 0 in payload:
-                x1 = payload.get(0)
-            if 1 in payload:
-                z1 = payload.get(1)
+            if 2 in neighbor_table:
+                payload = neighbor_table.get(1)
+                if 0 in payload:
+                    x1 = payload.get(0)
+                if 1 in payload:
+                    z1 = payload.get(1)
+            self.send_routes(0)
+
+
+        if self.name == 'A':
+            print (temp)
+            if 1 in temp: #temp is the current routing table
+                payload = temp.get(1)
+                if 0 in payload:
+                    w = payload.get(0)
+                if 1 in payload:
+                    y = payload.get(1)
+
+            if 2 in temp:
+                payload = temp.get(1)
+                if 0 in payload:
+                    x = payload.get(0)
+                if 1 in payload:
+                    z = payload.get(1)
+
+            if 1 in neighbor_table: #this is the table that was passed that we need to update with
+                payload = neighbor_table.get(1)
+                if 0 in payload:
+                    w1 = payload.get(0)
+                if 1 in payload:
+                    y1 = payload.get(1)
+
+            if 2 in neighbor_table:
+                payload = neighbor_table.get(1)
+                # if 0 in payload:
+                # #     x1 = payload.get(0)
+                if 0 in payload:
+                    z1 = payload.get(1)
+            # self.send_routes(1)
+
 
         if w1 < w:
             w = w1
@@ -292,9 +327,11 @@ class Router:
             y = y1
         if z1 < z:
             z = z1
-        self.rt_tbl_D.clear()
+
+        
         self.rt_tbl_D[0] = {0:w,1:x}
-        self.rt_tbl_D[1] = {0: y, 1:z}
+        self.rt_tbl_D[1] = {0:y,1:z}
+        # self.send_routes(0)
 
 
     # This sends the current router's routing table --> self, to an interface i
@@ -333,7 +370,6 @@ class Router:
                 w = temp.get(0)
             if 1 in temp:
                 x = temp.get(1)
-            print (temp)
         if 1 in df:
             temp = df.get(1)
             if 0 in temp:
