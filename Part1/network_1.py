@@ -172,6 +172,9 @@ class Host:
         pkt_S = self.intf_L[0].get('in')
         if pkt_S is not None:
             print('%s: received packet "%s"' % (self, pkt_S))
+            pkt = NetworkPacket.from_byte_S(pkt_S)
+            if pkt.data_S != 'ACK':
+                self.udt_send(pkt.source_addr, "ACK")
 
     # thread target for the host to keep receiving data
     def run(self):
