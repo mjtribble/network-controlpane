@@ -130,7 +130,7 @@ class UpdateMessage:
                 byte_S += str(interface)
                 cost = table[destination][interface]
                 byte_S += str(cost)
-        byte_S = byte_S.zfill(self.message_S_length)
+        byte_S = byte_S.zfill(self.message_S_length) 
         return byte_S
 
     # extract a packet object from a byte string
@@ -139,7 +139,7 @@ class UpdateMessage:
     def from_byte_S(self, byte_S):
         destination = int(byte_S[0])
         if byte_S[1] == '~':
-            interface = float('Inf')
+            interface = float('inf')
         else:
             interface = int(byte_S[1])
         cost = int(byte_S[2])
@@ -172,6 +172,9 @@ class Host:
         pkt_S = self.intf_L[0].get('in')
         if pkt_S is not None:
             print('%s: received packet "%s"' % (self, pkt_S))
+            pkt = NetworkPacket.from_byte_S(pkt_S)
+            if pkt.data_S != 'ACK':
+                self.udt_send(pkt.source_addr, "ACK")
 
     # thread target for the host to keep receiving data
     def run(self):
@@ -202,7 +205,6 @@ class Router:
             self.intf_L.append(Interface(max_queue_size))
         # set up the routing table for connected hosts
         self.rt_tbl_D = rt_tbl_D
-
         # called when printing the object
 
     def __str__(self):
@@ -231,17 +233,11 @@ class Router:
     #  @param i Incoming interface number for packet p
     def forward_packet(self, p, i):
         try:
-            # DoneTODO: lookup in the forwarding table to find the appropriate outgoing interface
-            table = self.rt_tbl_D  # routing table
-            destination_host = p.dst_addr
-
-            # set the interface with the minimum cost to reach specified host from the routing table
-            forward_interface = min(table[destination_host], key=table[destination_host].get)
-
-            print('FORWARD INTERFACE = ', forward_interface)
-
-            self.intf_L[forward_interface].put(p.to_byte_S(), 'out', True)
-            print('%s: forwarding packet "%s" from interface %d to %d' % (self, p, i, forward_interface))
+            # TODO: Here you will need to implement a lookup into the 
+            # forwarding table to find the appropriate outgoing interface
+            # for now we assume the outgoing interface is (i+1)%2
+            self.intf_L[(i+1)%2].put(p.to_byte_S(), 'out', True)
+            print('%s: forwarding packet "%s" from interface %d to %d' % (self, p, i, (i+1)%2))
         except queue.Full:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
             pass
@@ -255,60 +251,103 @@ class Router:
         # TODO: add logic to update the routing table and possibly send out more routing updates
         neighbor_table = UpdateMessage.from_byte_S(p.data_S)
         neighboring_router = p.source_addr
+
         print('%s: Received routing update %s through interface %d, from router %s' % (self, p, i, neighboring_router))
+        w,x,y,z = float('Inf'),float('Inf'),float('Inf'),float('Inf')
+        w1,x1,y1,z1 = float('Inf'),float('Inf'),float('Inf'),float('Inf')
+        temp = self.rt_tbl_D
+
+        #the 1 and 2 belonging to temp represents the columns of the routing table
+        # the 0 and 1 in payload represent the interfaces, therefore based on the interfaces and columns we know which element to update with the payload
+        if self.name =='B':
+            if 1 in temp: #temp is the current routing table
+                payload = temp.get(2)
+                if 0 in payload:
+                    w = payload.get(0)
+                if 1 in payload:
+                    y = payload.get(1)
+
+            if 2 in temp:
+                payload = temp.get(2)
+                if 0 in payload:
+                    x = payload.get(0)
+                if 1 in payload:
+                    z = payload.get(1)
+
+            if 1 in neighbor_table: #this is the table that was passed that we need to update with
+                payload = neighbor_table.get(1)
+                if 0 in payload:
+                    w1 = payload.get(0)
+                if 1 in payload:
+                    y1 = payload.get(1)
+
+            if 2 in neighbor_table:
+                payload = neighbor_table.get(1)
+                if 0 in payload:
+                    x1 = payload.get(0)
+                if 1 in payload:
+                    z1 = payload.get(1)
+            self.send_routes(0)
 
 
+        if self.name == 'A':
+            print (temp)
+            if 1 in temp: #temp is the current routing table
+                payload = temp.get(1)
+                if 0 in payload:
+                    w = payload.get(0)
+                if 1 in payload:
+                    y = payload.get(1)
 
-        # # bellman ford example code from github, USE as a template for our own methods do copy lol
-        # # # Step 1: For each node prepare the destination and predecessor
-        # def initialize(graph, source):
-        #     d = {}  # Stands for destination
-        #     p = {}  # Stands for predecessor
-        #     for node in graph:
-        #         d[node] = float('Inf')  # We start admiting that the rest of nodes are very very far
-        #         p[node] = None
-        #     d[source] = 0  # For the source we know how to reach
-        #     return d, p
-        #
-        # def relax(node, neighbour, graph, d, p):
-        #     # If the distance between the node and the neighbour is lower than the one I have now
-        #     if d[neighbour] > d[node] + graph[node][neighbour]:
-        #         # Record this lower distance
-        #         d[neighbour] = d[node] + graph[node][neighbour]
-        #         p[neighbour] = node
-        #
-        # def bellman_ford(graph, source):
-        #     d, p = initialize(graph, source)
-        #     for i in range(len(graph) - 1):  # Run this until is converges
-        #         for u in graph:
-        #             for v in graph[u]:  # For each neighbour of u
-        #                 relax(u, v, graph, d, p)  # Lets relax it
+            if 2 in temp:
+                payload = temp.get(1)
+                if 0 in payload:
+                    x = payload.get(0)
+                if 1 in payload:
+                    z = payload.get(1)
 
-    # ALGORITHM FROM BOOK
-    # Initialization:
-    #   for all destinations y in N:
-    #       Dx(y) = c(x,y) /* if y is not a neighbor then c(x,y) = ∞ */
-    #   for each neighbor w
-    #       Dw(y) = ? for all destinations y in N
-    #   for each neighbor w
-    #       send distance vector Dx = [Dx(y): y in N] to w
-    # loop:
-    #   wait (until I see a link cost change to some neighbor w
-    #       or until I receive a distance vector from some neighbor w)
-    #   for each y in N:
-    #       Dx(y) = minv{c(x,v) + Dv(y)}
-    #   if Dx(y) changed for any destination y
-    #       send distance vector Dx = [Dx(y): y in N] to all neighbors
-    # forever
+            if 1 in neighbor_table: #this is the table that was passed that we need to update with
+                payload = neighbor_table.get(1)
+                if 0 in payload:
+                    w1 = payload.get(0)
+                if 1 in payload:
+                    y1 = payload.get(1)
+
+            if 2 in neighbor_table:
+                payload = neighbor_table.get(1)
+                # if 0 in payload:
+                # #     x1 = payload.get(0)
+                if 0 in payload:
+                    z1 = payload.get(1)
+            # self.send_routes(1)
+
+
+        if w1 < w:
+            w = w1
+        if x1 < x:
+            x = x1
+        if y1 < y:
+            y = y1
+        if z1 < z:
+            z = z1
+
+        
+        self.rt_tbl_D[0] = {0:w,1:x}
+        self.rt_tbl_D[1] = {0:y,1:z}
+        # self.send_routes(0)
+
 
     # This sends the current router's routing table --> self, to an interface i
     # Todo: IF THERE'S TIME Check to make sure routing table is accurate based on links from the LinkLayer, and costs from the router.intf_cost_ list
     # right now the correct links are hard coded into the routing tables
     #  @param i Interface number on which to send out a routing update
+
     def send_routes(self, i):
+        
 
         packet_message = UpdateMessage(self.rt_tbl_D)
         message_S = packet_message.to_byte_S()
+
         p = NetworkPacket(self.name, 0, 'control', message_S)
         try:
             # TODO: Add logic to send out a route update
@@ -322,11 +361,43 @@ class Router:
     def print_routes(self):
         # DoneTODO: print the routes as a two dimensional table for easy inspection
 
-        df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
+        # df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
+        
+        w, x, y, z = '~','~','~','~'
+        df = self.rt_tbl_D
+        print (df)
 
-        print('%s: routing table:' % self)
-        print('Cost from Interface to Node:')
-        print(df)
+        if 0 in df:
+            temp = df.get(0)
+            if 0 in temp:
+                w = temp.get(0)
+            if 1 in temp:
+                x = temp.get(1)
+        if 1 in df:
+            temp = df.get(1)
+            if 0 in temp:
+                y = temp.get(0)
+            if 1 in temp:
+                z = temp.get(1)
+        # print (df)
+        # temp = df.get(0)
+        # temp2 = df.get(1)
+        # print (temp)
+        # print (temp2)
+        #need to change this eventually
+        # if 1 in df:         
+        #     w = temp.get(1)
+        # if 2 in df:
+        #     z = temp2.get(1)
+
+
+
+
+        print('\n'+'%s: routing table:' % self)
+        print ('Cost to: 1 2')
+        print ('        -----')
+        print ('From: 0| %s %s' % (w,x))
+        print ('      1| %s %s' % (y,z))
 
     # thread target for the host to keep forwarding data
     def run(self):
