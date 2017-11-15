@@ -311,22 +311,22 @@ class Router:
                 if 1 in payload:
                     y1 = payload.get(1)
 
-            # if 2 in neighbor_table:
-            #     payload = neighbor_table.get(1)
-            #     # if 0 in payload:
-            #     # #     x1 = payload.get(0)
-            #     if 0 in payload:
-            #         z1 = payload.get(1)
-                    # self.send_routes(1)
+            if 2 in neighbor_table:
+                payload = neighbor_table.get(1)
+                if 0 in payload:
+                    x1 = payload.get(0)
+                if 0 in payload:
+                    z1 = payload.get(1)
+            # self.send_routes(1)
 
-        if w1 < w:
-            w = w1
-        if x1 < x:
-            x = x1
-        if y1 < y:
-            y = y1
-        if z1 < z:
-            z = z1
+        if w == float('Inf'):
+            w = '~'
+        if x == float('Inf'):
+            x = '~'
+        if y == float('Inf'):
+            y = '~'
+        if z == float('Inf'):
+            z = '~'
 
         self.rt_tbl_D[0] = {0: w, 1: x}
         self.rt_tbl_D[1] = {0: y, 1: z}
@@ -373,6 +373,7 @@ class Router:
         # if Dx(y) changed for any destination y
         # send distance vector Dx = [Dx(y): y in N] to all neighbors
         # forever
+
 
     # This sends the current router's routing table --> self, to an interface i
     # Todo: IF THERE'S TIME Check to make sure routing table is accurate based on links from the LinkLayer, and costs from the router.intf_cost_ list
