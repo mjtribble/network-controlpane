@@ -114,7 +114,7 @@ class NetworkPacket:
 # This will take in a routing table, convert it into a string format to send
 # reconvert it from string to a readable table again.
 class UpdateMessage:
-    message_S_length = 3
+    message_S_length = 10
 
     # constructor
     def __init__(self, dictionary_table):
@@ -256,6 +256,8 @@ class Router:
         neighboring_router = p.source_addr
 
         print('%s: Received routing update %s through interface %d, from router %s' % (self, p, i, neighboring_router))
+
+        # Initialize table to infinity
         w, x, y, z = float('Inf'), float('Inf'), float('Inf'), float('Inf')
         w1, x1, y1, z1 = float('Inf'), float('Inf'), float('Inf'), float('Inf')
         temp = self.rt_tbl_D
@@ -339,7 +341,10 @@ class Router:
 
         self.rt_tbl_D[1] = {0: w, 1: x}
         self.rt_tbl_D[2] = {0: y, 1: z}
-        self.send_routes(0)
+
+        # hardcoded where to send the routing update to avoid sending to a host instead of a router
+        if self.name is 'B':
+            self.send_routes(0)
 
         # # bellman ford example code from github, USE as a template for our own methods do copy lol
         # # # Step 1: For each node prepare the destination and predecessor
