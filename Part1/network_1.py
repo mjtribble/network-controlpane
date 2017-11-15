@@ -287,10 +287,11 @@ class Router:
                     x1 = payload.get(0)
                 if 1 in payload:
                     z1 = payload.get(1)
-            self.send_routes(0)
+            # self.send_routes(0)
 
 
         if self.name == 'A':
+            print (neighbor_table)
             print (temp)
             if 1 in temp: #temp is the current routing table
                 payload = temp.get(1)
@@ -315,8 +316,8 @@ class Router:
 
             if 2 in neighbor_table:
                 payload = neighbor_table.get(1)
-                # if 0 in payload:
-                # #     x1 = payload.get(0)
+                if 0 in payload:
+                    x1 = payload.get(0)
                 if 0 in payload:
                     z1 = payload.get(1)
             # self.send_routes(1)
@@ -331,10 +332,18 @@ class Router:
         if z1 < z:
             z = z1
 
+        if w == float('Inf'):
+            w = '~'
+        if x == float('Inf'):
+            x = '~'
+        if y == float('Inf'):
+            y = '~'
+        if z == float('Inf'):
+            z = '~'
         
         self.rt_tbl_D[0] = {0:w,1:x}
         self.rt_tbl_D[1] = {0:y,1:z}
-        # self.send_routes(0)
+        self.send_routes(0)
 
 
     # This sends the current router's routing table --> self, to an interface i
