@@ -59,10 +59,8 @@ if __name__ == '__main__':
     for t in thread_L:
         t.start()
 
-    # send out routing information from router A to router B interface 0
-    # router_a.send_routes(1)
+    # send out routing information from router A to router B interface 1
     router_a.send_routes(1)
-    # router_b.send_routes(1)
 
     # create some send events
     for i in range(1):
