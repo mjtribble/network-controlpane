@@ -92,8 +92,8 @@ class NetworkPacket:
     @classmethod
     def from_byte_S(self, byte_S):
         source_addr = byte_S[0: NetworkPacket.source_addr_S_length]
-        dst_addr = int(byte_S[
-                       NetworkPacket.source_addr_S_length:NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length])
+        dst_addr = byte_S[
+                       NetworkPacket.source_addr_S_length:NetworkPacket.source_addr_S_length + NetworkPacket.dst_addr_S_length]
         prot_S = byte_S[3:4]
         if prot_S == '1':
             prot_S = 'data'
@@ -137,13 +137,17 @@ class UpdateMessage:
     # @param byte_S: byte string representation of the packet
     @classmethod
     def from_byte_S(self, byte_S):
-        destination = int(byte_S[0])
-        if byte_S[1] == '~':
-            interface = float('inf')
-        else:
-            interface = int(byte_S[1])
-        cost = int(byte_S[2])
-        table = {destination: {interface: cost}}
+        destinations = [int(byte_S[0]), int(byte_S[5])]
+        interfaces = [int(byte_S[1]), int(byte_S[3]), int(byte_S[6]), int(byte_S[8])]
+
+        costs0 = float('inf') if byte_S[2] == '~' else int(byte_S[2])
+        costs1 = float('inf') if byte_S[4] == '~' else int(byte_S[4])
+        costs2 = float('inf') if byte_S[7] == '~' else int(byte_S[7])
+        costs3 = float('inf') if byte_S[9] == '~' else int(byte_S[9])
+
+        table = {destinations[0]: {interfaces[0]: costs0, interfaces[1]: costs1},
+                 destinations[1]: {interfaces[2]: costs2, interfaces[3]: costs3}
+                 }
         return table
 
 
@@ -255,69 +259,65 @@ class Router:
         w, x, y, z = float('Inf'), float('Inf'), float('Inf'), float('Inf')
         w1, x1, y1, z1 = float('Inf'), float('Inf'), float('Inf'), float('Inf')
         temp = self.rt_tbl_D
+        print(temp);
 
         # the 1 and 2 belonging to temp represents the columns of the routing table
         # the 0 and 1 in payload represent the interfaces, therefore based on the interfaces and columns we know which element to update with the payload
         if self.name == 'B':
             if 1 in temp:  # temp is the current routing table
-                payload = temp.get(2)
+                payload = temp.get(1)
                 if 0 in payload:
-                    w = payload.get(0)
+                    if payload.get(0) != '~': w = payload.get(0)
                 if 1 in payload:
-                    y = payload.get(1)
-
+                    if payload.get(1) != '~': y = payload.get(1)
             if 2 in temp:
                 payload = temp.get(2)
                 if 0 in payload:
-                    x = payload.get(0)
+                    if payload.get(0) != '~': x = payload.get(0)
                 if 1 in payload:
-                    z = payload.get(1)
+                    if payload.get(1) != '~':z = payload.get(1)
 
             if 1 in neighbor_table:  # this is the table that was passed that we need to update with
                 payload = neighbor_table.get(1)
                 if 0 in payload:
-                    w1 = payload.get(0)
+                    if payload.get(0) != '~': w1 = payload.get(0)
                 if 1 in payload:
-                    y1 = payload.get(1)
+                    if payload.get(1) != '~': y1 = payload.get(1)
 
             if 2 in neighbor_table:
-                payload = neighbor_table.get(1)
+                payload = neighbor_table.get(2)
                 if 0 in payload:
-                    x1 = payload.get(0)
+                    if payload.get(0) != '~': x1 = payload.get(0)
                 if 1 in payload:
-                    z1 = payload.get(1)
-            # self.send_routes(0)
+                    if payload.get(1) != '~': z1 = payload.get(1)
 
         if self.name == 'A':
-            print(temp)
             if 1 in temp:  # temp is the current routing table
                 payload = temp.get(1)
                 if 0 in payload:
-                    w = payload.get(0)
+                    if payload.get(0) != '~': w = payload.get(0)
                 if 1 in payload:
-                    y = payload.get(1)
-
+                    if payload.get(1) != '~': y = payload.get(1)
             if 2 in temp:
-                payload = temp.get(1)
+                payload = temp.get(2)
                 if 0 in payload:
-                    x = payload.get(0)
+                    if payload.get(0) != '~': x = payload.get(0)
                 if 1 in payload:
-                    z = payload.get(1)
+                    if payload.get(1) != '~':z = payload.get(1)
 
             if 1 in neighbor_table:  # this is the table that was passed that we need to update with
                 payload = neighbor_table.get(1)
                 if 0 in payload:
-                    w1 = payload.get(0)
+                    if payload.get(0) != '~': w1 = payload.get(0)
                 if 1 in payload:
-                    y1 = payload.get(1)
+                    if payload.get(1) != '~': y1 = payload.get(1)
 
             if 2 in neighbor_table:
-                payload = neighbor_table.get(1)
+                payload = neighbor_table.get(2)
                 if 0 in payload:
-                    x1 = payload.get(0)
-                if 0 in payload:
-                    z1 = payload.get(1)
-            # self.send_routes(1)
+                    if payload.get(0) != '~': x1 = payload.get(0)
+                if 1 in payload:
+                    if payload.get(1) != '~': z1 = payload.get(1)
 
         if w1 < w:
             w = w1
@@ -336,8 +336,6 @@ class Router:
             y = '~'
         if z == float('Inf'):
             z = '~'
-
-
 
         self.rt_tbl_D[1] = {0: w, 1: x}
         self.rt_tbl_D[2] = {0: y, 1: z}
@@ -385,7 +383,6 @@ class Router:
         # send distance vector Dx = [Dx(y): y in N] to all neighbors
         # forever
 
-
     # This sends the current router's routing table --> self, to an interface i
     # Todo: IF THERE'S TIME Check to make sure routing table is accurate based on links from the LinkLayer, and costs from the router.intf_cost_ list
     # right now the correct links are hard coded into the routing tables
@@ -413,14 +410,14 @@ class Router:
         df = self.rt_tbl_D
         print(df)
 
-        if 0 in df:
-            temp = df.get(0)
+        if 1 in df:
+            temp = df.get(1)
             if 0 in temp:
                 w = temp.get(0)
             if 1 in temp:
                 x = temp.get(1)
-        if 1 in df:
-            temp = df.get(1)
+        if 2 in df:
+            temp = df.get(2)
             if 0 in temp:
                 y = temp.get(0)
             if 1 in temp:
