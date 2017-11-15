@@ -319,6 +319,15 @@ class Router:
                     z1 = payload.get(1)
             # self.send_routes(1)
 
+        if w1 < w:
+            w = w1
+        if x1 < x:
+            x = x1
+        if y1 < y:
+            y = y1
+        if z1 < z:
+            z = z1
+
         if w == float('Inf'):
             w = '~'
         if x == float('Inf'):
@@ -328,8 +337,10 @@ class Router:
         if z == float('Inf'):
             z = '~'
 
-        self.rt_tbl_D[0] = {0: w, 1: x}
-        self.rt_tbl_D[1] = {0: y, 1: z}
+
+
+        self.rt_tbl_D[1] = {0: w, 1: x}
+        self.rt_tbl_D[2] = {0: y, 1: z}
         self.send_routes(0)
 
         # # bellman ford example code from github, USE as a template for our own methods do copy lol
