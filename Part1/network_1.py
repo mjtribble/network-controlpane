@@ -265,61 +265,61 @@ class Router:
 
         # the 1 and 2 belonging to temp represents the columns of the routing table
         # the 0 and 1 in payload represent the interfaces, therefore based on the interfaces and columns we know which element to update with the payload
-        if self.name == 'B':
-            if 1 in temp:  # temp is the current routing table
-                payload = temp.get(1)
-                if 0 in payload:
-                    if payload.get(0) != '~': w = payload.get(0)
-                if 1 in payload:
-                    if payload.get(1) != '~': y = payload.get(1)
-            if 2 in temp:
-                payload = temp.get(2)
-                if 0 in payload:
-                    if payload.get(0) != '~': x = payload.get(0)
-                if 1 in payload:
-                    if payload.get(1) != '~':z = payload.get(1)
+        # if self.name == 'B':
+        if 1 in temp:  # temp is the current routing table
+            payload = temp.get(1)
+            if 0 in payload:
+                if payload.get(0) != '~': w = payload.get(0)
+            if 1 in payload:
+                if payload.get(1) != '~': y = payload.get(1)
+        if 2 in temp:
+            payload = temp.get(2)
+            if 0 in payload:
+                if payload.get(0) != '~': x = payload.get(0)
+            if 1 in payload:
+                if payload.get(1) != '~':z = payload.get(1)
 
-            if 1 in neighbor_table:  # this is the table that was passed that we need to update with
-                payload = neighbor_table.get(1)
-                if 0 in payload:
-                    if payload.get(0) != '~': w1 = payload.get(0)
-                if 1 in payload:
-                    if payload.get(1) != '~': y1 = payload.get(1)
+        if 1 in neighbor_table:  # this is the table that was passed that we need to update with
+            payload = neighbor_table.get(1)
+            if 0 in payload:
+                if payload.get(0) != '~': w1 = payload.get(0)
+            if 1 in payload:
+                if payload.get(1) != '~': y1 = payload.get(1)
 
-            if 2 in neighbor_table:
-                payload = neighbor_table.get(2)
-                if 0 in payload:
-                    if payload.get(0) != '~': x1 = payload.get(0)
-                if 1 in payload:
-                    if payload.get(1) != '~': z1 = payload.get(1)
+        if 2 in neighbor_table:
+            payload = neighbor_table.get(2)
+            if 0 in payload:
+                if payload.get(0) != '~': x1 = payload.get(0)
+            if 1 in payload:
+                if payload.get(1) != '~': z1 = payload.get(1)
 
-        if self.name == 'A':
-            if 1 in temp:  # temp is the current routing table
-                payload = temp.get(1)
-                if 0 in payload:
-                    if payload.get(0) != '~': w = payload.get(0)
-                if 1 in payload:
-                    if payload.get(1) != '~': y = payload.get(1)
-            if 2 in temp:
-                payload = temp.get(2)
-                if 0 in payload:
-                    if payload.get(0) != '~': x = payload.get(0)
-                if 1 in payload:
-                    if payload.get(1) != '~':z = payload.get(1)
+        # if self.name == 'A':
+        # if 1 in temp:  # temp is the current routing table
+        #     payload = temp.get(1)
+        #     if 0 in payload:
+        #         if payload.get(0) != '~': w = payload.get(0)
+        #     if 1 in payload:
+        #         if payload.get(1) != '~': y = payload.get(1)
+        # if 2 in temp:
+        #     payload = temp.get(2)
+        #     if 0 in payload:
+        #         if payload.get(0) != '~': x = payload.get(0)
+        #     if 1 in payload:
+        #         if payload.get(1) != '~':z = payload.get(1)
 
-            if 1 in neighbor_table:  # this is the table that was passed that we need to update with
-                payload = neighbor_table.get(1)
-                if 0 in payload:
-                    if payload.get(0) != '~': w1 = payload.get(0)
-                if 1 in payload:
-                    if payload.get(1) != '~': y1 = payload.get(1)
+        # if 1 in neighbor_table:  # this is the table that was passed that we need to update with
+        #     payload = neighbor_table.get(1)
+        #     if 0 in payload:
+        #         if payload.get(0) != '~': w1 = payload.get(0)
+        #     if 1 in payload:
+        #         if payload.get(1) != '~': y1 = payload.get(1)
 
-            if 2 in neighbor_table:
-                payload = neighbor_table.get(2)
-                if 0 in payload:
-                    if payload.get(0) != '~': x1 = payload.get(0)
-                if 1 in payload:
-                    if payload.get(1) != '~': z1 = payload.get(1)
+        # if 2 in neighbor_table:
+        #     payload = neighbor_table.get(2)
+        #     if 0 in payload:
+        #         if payload.get(0) != '~': x1 = payload.get(0)
+        #     if 1 in payload:
+        #         if payload.get(1) != '~': z1 = payload.get(1)
 
         if w1 < w:
             w = w1
