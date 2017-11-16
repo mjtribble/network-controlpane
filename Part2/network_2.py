@@ -345,6 +345,8 @@ class Router:
         # hardcoded where to send the routing update to avoid sending to a host instead of a router
         if self.name is 'B':
             self.send_routes(0)
+        if self.name is 'A':
+            self.send_routes(1)
 
         # # bellman ford example code from github, USE as a template for our own methods do copy lol
         # # # Step 1: For each node prepare the destination and predecessor
