@@ -1,11 +1,10 @@
-'''
+"""
 Created on Oct 12, 2016
 
 @author: mwitt_000
-'''
+"""
 import queue
 import threading
-import pandas as pd
 
 
 ## wrapper class for a queue of packets
@@ -210,18 +209,35 @@ class Router:
         except queue.Full:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
             pass
-        
-    ## Print routing table
-    def print_routes(self):
-        print('%s: routing table' % self)
-        #TODO: print the routes as a two dimensional table for easy inspection
-        # Currently the function just prints the route table as a dictionary
-        df = pd.DataFrame.from_dict(self.rt_tbl_D, orient='columns', dtype=int)
 
-        print('%s: routing table' % self)
-        print('Cost To')
+
+    def print_routes(self):
+        # DoneTODO: print the routes as a two dimensional table for easy inspection
+
+        w, x, y, z = '~', '~', '~', '~'
+        df = self.rt_tbl_D
         print(df)
-                
+
+        if 1 in df:
+            temp = df.get(1)
+            if 0 in temp:
+                w = temp.get(0)
+            if 1 in temp:
+                x = temp.get(1)
+        if 2 in df:
+            temp = df.get(2)
+            if 0 in temp:
+                y = temp.get(0)
+            if 1 in temp:
+                z = temp.get(1)
+
+
+        print('\n' + '%s: routing table:' % self)
+        print('Cost to: 1 2')
+        print('        -----')
+        print('From: 0| %s %s' % (w, x))
+        print('      1| %s %s' % (y, z))
+
     ## thread target for the host to keep forwarding data
     def run(self):
         print (threading.currentThread().getName() + ': Starting')
